@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Advanced Selectors, Pseudo Classes, and Pseudo Elements</title>
+    <style>
+        /* Advanced Selectors */
+        .container > ul li:first-child {
+            color: #0074D9;
+            font-weight: bold;
+        }
+        .container ul li:last-child {
+            color: #FF4136;
+        }
+        .container ul li:nth-child(even) {
+            background: #f0f0f0;
+        }
+        .container ul li[class~="highlight"] {
+            background: #ffe066;
+        }
+        .container ul li[data-special] {
+            border-left: 4px solid #2ECC40;
+            padding-left: 8px;
+        }
+
+        /* Pseudo Classes */
+        a:hover {
+            color: #FF851B;
+            text-decoration: underline;
+        }
+        input:focus {
+            border: 2px solid #0074D9;
+            outline: none;
+        }
+        button:active {
+            background: #FFDC00;
+        }
+        li:empty {
+            display: none;
+        }
+
+        /* Pseudo Elements */
+        h2::after {
+            content: " ✨";
+            color: #B10DC9;
+        }
+        p::first-line {
+            font-weight: bold;
+            color: #39CCCC;
+        }
+        p::first-letter {
+            font-size: 2em;
+            color: #FF4136;
+            float: left;
+            margin-right: 6px;
+        }
+        ul li::marker {
+            color: #2ECC40;
+        }
+        .container ul li::selection {
+            background: #FFDC00;
+            color: #111;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Advanced Selectors, Pseudo Classes, and Pseudo Elements</h1>
+        <h2>CSS Examples</h2>
+        <ul>
+            <li>First item (first-child)</li>
+            <li class="highlight">Highlighted item (class~="highlight")</li>
+            <li data-special="true">Special item (attribute selector)</li>
+            <li>Regular item</li>
+            <li></li>
+            <li>Last item (last-child)</li>
+        </ul>
+        <p>
+            This paragraph demonstrates <strong>pseudo elements</strong> like <code>::first-line</code> and <code>::first-letter</code>. Select and highlight text to see <code>::selection</code> in action.
+        </p>
+        <a href="#">Hover over this link</a>
+        <br><br>
+        <input type="text" placeholder="Focus me!">
+        <button>Click me!</button>
+    </div>
+</body>
+</html>
+    
+
