@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anwar Tariq & Co. - Chartered Accountants | Audit, Tax & Advisory Leaders</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&family=Roboto+Slab:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* General Styling & Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif; /* Professional, highly readable sans-serif */
+            line-height: 1.7; /* Increased line height for readability */
+            color: #333; /* Darker, grounded text color */
+            background-color: #f8f8f8; /* Very light, clean background */
+        }
+
+        .container {
+            width: 90%; /* Slightly wider for more content */
+            max-width: 1100px; /* Refined max width */
+            margin: auto;
+            overflow: hidden;
+            padding: 30px 0; /* More vertical padding */
+        }
+
+        /* Header */
+        header {
+            background: #003366; /* Deep, authoritative navy blue */
+            color: #fff;
+            padding: 60px 0; /* Generous padding */
+            text-align: center;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.25); /* Deeper shadow */
+        }
+
+        header h1 {
+            font-family: 'Roboto Slab', serif; /* A strong, professional serif for headlines */
+            font-size: 3.5em; /* Larger, more impactful heading */
+            margin-bottom: 15px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase; /* Subtle uppercase for strong impact */
+        }
+
+        header p {
+            font-size: 1.3em;
+            opacity: 0.95;
+            font-weight: 300; /* Lighter font weight */
+        }
+
+        /* Navigation */
+        nav {
+            background: #004488; /* Slightly lighter than header */
+            color: #fff;
+            text-align: center;
+            padding: 18px 0;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        nav ul li {
+            display: inline-block; /* Use inline-block for better spacing control */
+            padding: 0 25px; /* More spacing */
+        }
+
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600; /* Slightly bolder */
+            transition: color 0.3s ease, transform 0.3s ease;
+            font-size: 1.15em;
+            text-transform: uppercase; /* Subtle uppercase for nav */
+        }
+
+        nav ul li a:hover {
+            color: #aaddff; /* Softer, professional light blue */
+            transform: translateY(-3px); /* Gentle lift effect */
+        }
+
+        /* Main Content Sections */
+        main section {
+            padding: 80px 0; /* Even more vertical padding */
+            margin-bottom: 40px;
+            background: #fff;
+            border-radius: 10px; /* Slightly more rounded corners */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08); /* Deeper, softer shadow */
+            transition: transform 0.3s ease;
+        }
+
+        main section:hover {
+            transform: translateY(-5px); /* More noticeable lift on hover */
+        }
+
+        main section h2 {
+            font-family: 'Roboto Slab', serif;
+            text-align: center;
+            margin-bottom: 50px; /* More space below heading */
+            color: #003366;
+            font-size: 3em; /* Larger headings for sections */
+            border-bottom: 4px solid #0056b3; /* Richer accent line */
+            display: inline-block;
+            padding-bottom: 12px;
+            letter-spacing: 0.8px;
+            text-transform: capitalize; /* Ensure consistency for section titles */
+        }
+
+        main section p {
+            margin-bottom: 25px; /* More space below paragraphs */
+            text-align: justify;
+            font-size: 1.1em; /* Slightly larger body text */
+            line-height: 1.8;
+        }
+
+        /* Services Grid */
+        .service-grid, .specialty-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Wider min for items */
+            gap: 40px; /* More space between items */
+            margin-top: 50px;
+        }
+
+        .service-item, .specialty-item {
+            background: #f0f8ff; /* Very light blue background for items */
+            padding: 35px; /* More padding inside items */
+            border: 1px solid #e0e0e0; /* Softer border */
+            border-radius: 12px; /* More rounded */
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.06);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .service-item:hover, .specialty-item:hover {
+            transform: translateY(-10px); /* More pronounced lift */
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .service-item h3, .specialty-item h3 {
+            font-family: 'Roboto Slab', serif;
+            color: #004488;
+            margin-bottom: 18px;
+            font-size: 1.8em; /* Larger sub-headings */
+        }
+
+        .service-item p, .specialty-item p {
+            font-size: 1em;
+            text-align: center;
+            margin-bottom: 0;
+            line-height: 1.6;
+        }
+
+        /* Team Section */
+        .team-member {
+            background: #fdfdfd;
+            padding: 30px; /* More padding */
+            margin-bottom: 30px;
+            border-left: 8px solid #0056b3; /* Thicker, richer accent line */
+            border-radius: 10px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+        }
+
+        .team-member h3 {
+            font-family: 'Roboto Slab', serif;
+            color: #003366;
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+
+        .team-member p {
+            font-size: 1.05em;
+            text-align: left;
+            line-height: 1.7;
+        }
+
+        /* Contact Form */
+        #contact form {
+            background: #eef7ff; /* Very light blue background for form */
+            padding: 50px; /* More padding */
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            max-width: 750px; /* Slightly wider form */
+            margin: 0 auto 40px auto;
+        }
+
+        #contact form .form-group {
+            margin-bottom: 25px; /* More space */
+        }
+
+        #contact form label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600; /* Bolder label */
+            color: #333;
+            font-size: 1.15em;
+        }
+
+        #contact form input[type="text"],
+        #contact form input[type="email"],
+        #contact form textarea {
+            width: 100%;
+            padding: 15px; /* Larger input fields */
+            border: 1px solid #c0c0c0; /* Softer border */
+            border-radius: 8px;
+            font-size: 1.05em;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        #contact form input[type="text"]:focus,
+        #contact form input[type="email"]:focus,
+        #contact form textarea:focus {
+            border-color: #0056b3;
+            box-shadow: 0 0 10px rgba(0, 86, 179, 0.4);
+            outline: none;
+        }
+
+        #contact form textarea {
+            resize: vertical;
+            min-height: 150px; /* Taller textarea */
+        }
+
+        #contact form button {
+            display: block;
+            width: 100%;
+            padding: 18px; /* Larger button */
+            background: #0056b3; /* Primary button color */
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.3em;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+            font-weight: 600;
+        }
+
+        #contact form button:hover {
+            background: #003d7a; /* Darker blue on hover */
+            transform: translateY(-3px);
+        }
+
+        #contact .contact-info {
+            text-align: center;
+            font-size: 1.1em;
+            margin-top: 40px; /* Space above contact details */
+        }
+        #contact .contact-info p {
+            margin-bottom: 15px;
+        }
+        #contact .contact-info ul {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0;
+            display: inline-block; /* To center the list if desired */
+        }
+        #contact .contact-info li {
+            margin-bottom: 8px;
+            text-align: left; /* Align list items to left */
+        }
+        #contact .contact-info li a {
+            color: #0056b3; /* Make links stand out */
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        #contact .contact-info li a:hover {
+            color: #003d7a;
+            text-decoration: underline;
+        }
+
+        #contact .contact-info strong {
+            color: #003366;
+            font-size: 1.2em;
+        }
+
+        /* Footer */
+        footer {
+            background: #003366;
+            color: #fff;
+            text-align: center;
+            padding: 40px 0;
+            margin-top: 50px;
+            box-shadow: 0 -6px 12px rgba(0,0,0,0.25);
+        }
+
+        footer p {
+            margin: 0;
+            font-size: 1em;
+            opacity: 0.9;
+        }
+
+        /* Media Queries for Responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+                padding: 20px 0;
+            }
+
+            header h1 {
+                font-size: 2.5em;
+            }
+
+            header p {
+                font-size: 1.1em;
+            }
+
+            nav ul li {
+                display: block; /* Stack nav items */
+                padding: 8px 0;
+            }
+
+            main section h2 {
+                font-size: 2.2em;
+                margin-bottom: 30px;
+            }
+
+            .service-grid, .specialty-grid {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+
+            .service-item, .specialty-item {
+                padding: 25px;
+            }
+
+            #contact form {
+                padding: 30px;
+            }
+
+            #contact form input,
+            #contact form textarea,
+            #contact form button {
+                padding: 12px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>ANWAR TARIQ & CO.</h1>
+            <p>Chartered Accountants - Your Trusted Partner in Financial Excellence</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="#about">About Us</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#specialties">Specialties</a></li>
+                <li><a href="#team">Our Team</a></li>
+                <li><a href="#contact">Contact Us</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <section id="about" class="container">
+            <h2>About Anwar Tariq & Co.</h2>
+            <p>Anwar Tariq & Co. stands as a distinguished firm of Chartered Accountants in Pakistan, recognized for its unwavering commitment to delivering premier professional services. We are dedicated to empowering individuals and enterprises through precise financial guidance, ensuring regulatory compliance, and fostering sustainable growth in an evolving economic landscape.</p>
+            <p>Leveraging extensive experience and strategic foresight, our firm provides accurate, timely, and insightful advice. We partner with our clients to navigate complex financial challenges, achieve their strategic objectives, and build robust financial health, thereby solidifying their success in both local and international markets.</p>
+        </section>
+
+        <section id="services" class="container">
+            <h2>Our Core Services</h2>
+            <div class="service-grid">
+                <div class="service-item">
+                    <h3>Audit & Assurance</h3>
+                    <p>Delivering comprehensive audit value, our independent assurance services enhance confidence in financial reporting, identify critical risks, and fortify internal control frameworks to ensure full regulatory compliance.</p>
+                </div>
+                <div class="service-item">
+                    <h3>Taxation Services</h3>
+                    <p>We empower businesses to achieve optimal tax efficiency while maintaining absolute compliance. Our services encompass strategic tax planning, meticulous preparation, and adherence to all pertinent tax laws for individuals and corporations.</p>
+                </div>
+                <div class="service-item">
+                    <h3>Advisory & Consultancy</h3>
+                    <p>Guiding our clients toward informed decisions for their business's future, our strategic advisory and consulting services extend to business planning, financial restructuring, and navigating diverse financial challenges to drive sustained growth.</p>
+                </div>
+                <div class="service-item">
+                    <h3>Forensic & Investigative Services</h3>
+                    <p>Assisting businesses in meeting today's elevated standards for risk management, we offer specialized forensic accounting to investigate financial irregularities, detect fraud, and provide expert support in legal proceedings.</p>
+                </div>
+                <div class="service-item">
+                    <h3>Outsourcing Solutions</h3>
+                    <p>Enhancing operational efficiency through state-of-the-art outsourcing solutions, we streamline accounting, payroll, and administrative functions, allowing clients to focus on core business activities.</p>
+                </div>
+                <div class="service-item">
+                    <h3>Corporate Governance & Strategy</h3>
+                    <p>With a special emphasis on family governance and family-owned businesses, we assist organizations in establishing robust governance frameworks and developing insightful long-term strategies for sustainable success.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="specialties" class="container">
+            <h2>Specialty Practices & Industry Expertise</h2>
+            <div class="specialty-grid">
+                <div class="specialty-item">
+                    <h3>Textile Industry</h3>
+                    <p>Tailored financial and advisory expertise for the dynamic and specific demands of the textile sector.</p>
+                </div>
+                <div class="specialty-item">
+                    <h3>Technology Sector</h3>
+                    <p>Specialized accounting, tax, and advisory solutions for rapid-growth technology companies and startups.</p>
+                </div>
+                <div class="specialty-item">
+                    <h3>Not For Profit (NGO)</h3>
+                    <p>Dedicated support for non-profit organizations in achieving regulatory compliance, robust audit, and transparent financial management.</p>
+                </div>
+                <div class="specialty-item">
+                    <h3>Government & Semi-Government Organizations</h3>
+                    <p>Proficient in navigating the intricate accounting, audit, and compliance requirements unique to public sector entities.</p>
+                </div>
+                <div class="specialty-item">
+                    <h3>Hotel, Travel & Tourism</h3>
+                    <p>Comprehensive financial services addressing the distinct challenges and opportunities within the vibrant hospitality and tourism industry.</p>
+                </div>
+                <div class="specialty-item">
+                    <h3>Engineering Sector</h3>
+                    <p>Specialized financial and advisory solutions for engineering firms, from project-based accounting to regulatory compliance.</p>
+                </div>
+                <div class="specialty-item">
+                    <h3>Real Estate Development</h3>
+                    <p>In-depth expertise in real estate accounting, intricate tax implications, and strategic transaction advisory services.</p>
+                </div>
+                <div class="specialty-item">
+                    <h3>Financial Services Industry</h3>
+                    <p>Profound understanding of complex regulatory frameworks to provide robust audit and advisory services to financial institutions.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="team" class="container">
+            <h2>Our Dedicated Team</h2>
+            <div class="team-member">
+                <h3>Manager: Tajamal</h3>
+                <p>Tajamal is a highly experienced and pivotal professional responsible for overseeing the firm's daily operations and ensuring seamless workflow. His exceptional leadership, meticulous attention to detail, and commitment to operational excellence are instrumental in consistently delivering high-quality client services and fostering team collaboration.</p>
+            </div>
+            <div class="team-member">
+                <h3>Partners: M. Shahid & Tariq</h3>
+                <p>M. Shahid and Tariq are the visionary partners who steer Anwar Tariq & Co. Their profound expertise across audit, tax, and advisory domains, coupled with an unwavering dedication to professional integrity and client success, forms the bedrock of the firm's reputation and its sustained growth as a trusted advisor in the financial industry.</p>
+            </div>
+            <div class="team-member">
+                <h3>Receptionists: Yasir & Shakeel</h3>
+                <p>Yasir and Shakeel serve as the friendly and efficient first point of contact for Anwar Tariq & Co. Their professional demeanor, prompt assistance, and welcoming approach ensure that every client and visitor experiences the firm's commitment to exceptional service from the very first interaction.</p>
+            </div>
+        </section>
+
+        <section id="contact" class="container">
+            <h2>Get In Touch</h2>
+            <p style="text-align: center; margin-bottom: 40px;">We are always ready to discuss your financial needs and how we can add value to your business. Please feel free to reach out to us.</p>
+            <form action="#" method="POST">
+                <div class="form-group">
+                    <label for="name">Your Name:</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Your Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="message">Your Message:</label>
+                    <textarea id="message" name="message" rows="5" required></textarea>
+                </div>
+                <button type="submit">Send Message</button>
+            </form>
+            <div class="contact-info">
+                <p><strong>Office Address:</strong></p>
+                <p>First Floor, 84-B-I, Ghalib Road, Gulberg-III. Lahore Pakistan-54660</p>
+                <p><strong>Connect Directly:</strong></p>
+                <ul>
+                    <li><a href="tel:+923008443676">+92-300-8443676</a> (M. Shahid)</li>
+                    <li><a href="tel:+9242358720603">+92-42-358720603</a> (Tariq)</li>
+                </ul>
+                <p><strong>Email Us:</strong> <a href="mailto:info@anwartariq.com">info@anwartariq.com</a></p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Anwar Tariq & Co. All Rights Reserved.</p>
+            <p>Designed with Excellence by METASOL</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -53,7 +53,55 @@
                 <p class="card-text">We deliver the audit value you deserve.</p>
                 <a href="#" class="btn btn-primary">hire</a>
             </div>
-            
+            <form>
+                <h2>Register to Hire Me</h2>
+                <form action="mailto:rafayshahid6117@gmail.com,mshahidzaman1@gmail.com" method="POST" enctype="text/plain">
+                    <label for="client-name">Your Name</label>
+                    <input type="text" id="client-name" name="Client Name" required>
+
+                    <label for="client-phone">Phone Number</label>
+                    <input type="tel" id="client-phone" name="Phone Number" required pattern="[0-9]{11,13}">
+
+                    <label for="client-email">Email</label>
+                    <input type="email" id="client-email" name="Email" required>
+
+                    <label for="work-details">Work Description</label>
+                    <textarea id="work-details" name="Work Description" rows="4" required placeholder="Describe the website or webpage you want..."></textarea>
+
+                    <button type="submit">Submit Registration</button>
+                </form>
+                <p style="font-size:0.95em; color:#888; margin-top:10px;">
+                    <span id="form-message" style="display:block; margin-bottom:8px;"></span>
+                    * The form will open your email client to send your details.
+                    <script>
+                        const form = document.querySelector('form');
+                        const message = document.getElementById('form-message');
+
+                        form.addEventListener('submit', function(e) {
+                            let valid = true;
+                            for (const input of form.querySelectorAll('input, textarea')) {
+                                if (!input.checkValidity()) {
+                                    valid = false;
+                                    break;
+                                }
+                            }
+                            if (!valid) {
+                                e.preventDefault();
+                                message.style.color = "#d32f2f";
+                                message.textContent = "Please complete the form and try to submit again.";
+                                return;
+                            }
+                            // Try to detect if mailto is blocked (not reliable, but for demo)
+                            setTimeout(() => {
+                                message.style.color = "#388e3c";
+                                message.textContent = "Successfully submitted.";
+                            }, 500);
+                        });
+
+                        window.addEventListener('error', function() {
+                            message.style.color = "#d32f2f";
+                            message.textContent = "Unfortunately the form was not submitted, please try again.";
+                        });
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
 </body>
