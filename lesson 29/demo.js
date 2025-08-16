@@ -17,7 +17,7 @@ console.log('startinggg')
 
 setTimeout(() => {
     console.log('workdone hurray')
-}, 1000)
+}, 1000) 
 
 console.log('endinggg')
 
