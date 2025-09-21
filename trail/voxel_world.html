@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Mini Voxel Open World (Prototype)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<style>
+  html,body{height:100%;margin:0;overflow:hidden;background:#87ceeb}
+  #hint{position:fixed;left:12px;top:12px;z-index:40;background:rgba(0,0,0,0.4);color:#fff;padding:8px 10px;border-radius:8px;font-family:system-ui;font-size:13px}
+  #hotbar{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;display:flex;gap:8px;z-index:40}
+  .slot{width:44px;height:44px;border-radius:6px;border:2px solid rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;background:#222;color:#fff;font-family:monospace;font-weight:700;opacity:0.9}
+  .sel{outline:3px solid #ffd54f}
+  #info{position:fixed;right:12px;bottom:12px;color:#111;background:rgba(255,255,255,0.9);padding:8px;border-radius:6px;font-family:system-ui;z-index:40}
+</style>
+</head>
+<body>
+<div id="hint">Click to lock mouse • WASD to move • Space jump • Left click remove • Right click place • 1-4 select block</div>
+<div id="hotbar">
+  <div class="slot sel" data-type="grass">G</div>
+  <div class="slot" data-type="dirt">D</div>
+  <div class="slot" data-type="stone">S</div>
+  <div class="slot" data-type="wood">W</div>
+</div>
+<div id="info">Blocks: <span id="count">0</span></div>
+
+<!-- three.js -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.min.js"></script>
+<!-- pointer lock controls -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.157.0/examples/js/controls/PointerLockControls.js"></script>
+
+<script>
+/*
+Mini Voxel Open World Prototype
+- Uses THREE.InstancedMesh for performance
+- Small world by default (W x H x D)
+- Click to lock pointer, Left click removes block, Right click places selected block
+- 1-4 keys choose block
+*/
+
+(() => {
+  // ---------- SETTINGS (tweakable) ----------
+  const WORLD_W = 32;   // x dimension
+  const WORLD_H = 16;   // y dimension
+  const WORLD_D = 32;   // z dimension
+  const SEA_LEVEL = 6;
+  const BLOCK_SIZE = 1;
+  const MAX_INSTANCES = WORLD_W * WORLD_H * WORLD_D;
+
+  // block types and simple colors
+  const BLOCK_TYPES = {
+    air: 0,
+    grass: 1,
+    dirt: 2,
+    stone: 3,
+    wood: 4
+  };
+  const TYPE_COLORS = {
+    [BLOCK_TYPES.grass]: 0x67b26b,
+    [BLOCK_TYPES.dirt]: 0x8b5a2b,
+    [BLOCK_TYPES.stone]: 0x9a9da3,
+    [BLOCK_TYPES.wood]: 0x8d6b3f
+  };
+  const hotbarSlots = ['grass','dirt','stone','wood'];
+
+  // ---------- Scene ----------
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x87ceeb);
+
+  const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
+  camera.position.set(0, SEA_LEVEL + 6, 12);
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.shadowMap.enabled = true;
+  document.body.appendChild(renderer.domElement);
+
+  // lights
+  const hemi = new THREE.HemisphereLight(0xffffff, 0x444466, 0.8);
+  scene.add(hemi);
+  const sun = new THREE.DirectionalLight(0xffffff, 1.0);
+  sun.position.set(30, 60, 20);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048,2048);
+  scene.add(sun);
+
+  // ground plane under everything so shadows fall
+  const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(1000, 1000),
+    new THREE.MeshStandardMaterial({ color: 0x266426 })
+  );
+  ground.rotation.x = -Math.PI/2;
+  ground.position.y = -30;
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  // ---------- Simple noise (value noise) ----------
+  // fast pseudo-random hash
+  function hash(n){ return Math.sin(n*127.1)*43758.5453123 % 1; }
+  // 2D value noise (smooth)
+  function valueNoise2(x,y){
+    const xi = Math.floor(x), yi = Math.floor(y);
+    const xf = x - xi, yf = y - yi;
+    function s(i,j){ return fract(Math.sin((i*374761393 + j*668265263) % 2147483647) * 43758.5453); }
+    const v00 = s(xi, yi);
+    const v10 = s(xi+1, yi);
+    const v01 = s(xi, yi+1);
+    const v11 = s(xi+1, yi+1);
+    const u = fade(xf), v = fade(yf);
+    return lerp(lerp(v00, v10, u), lerp(v01, v11, u), v);
+  }
+  function fade(t){ return t*t*(3-2*t); }
+  function lerp(a,b,t){ return a + (b-a)*t; }
+  function fract(x){ return x - Math.floor(x); }
+
+  // nicer terrain using layered noise
+  function terrainHeight(x,z){
+    // scale coordinates for nicer features
+    const s = 0.08;
+    let n = 0;
+    n += 3 * valueNoise2(x*s, z*s);
+    n += 2 * valueNoise2(x*s*2, z*s*2) * 0.6;
+    n += 1 * valueNoise2(x*s*4, z*s*4) * 0.4;
+    return Math.floor(n * 6); // height in blocks
+  }
+
+  // ---------- voxel world storage ----------
+  // 3D array flattened: index = x + y*W + z*W*H
+  const W = WORLD_W, H = WORLD_H, D = WORLD_D;
+  const world = new Uint8Array(W * H * D); // stores block type (0 = air)
+  function idx(x,y,z){ return x + y*W + z*W*H; }
+  function inBounds(x,y,z){ return x>=0 && x<W && y>=0 && y<H && z>=0 && z<D; }
+
+  // generate terrain
+  for(let z=0; z<D; z++){
+    for(let x=0; x<W; x++){
+      const worldX = x - W/2;
+      const worldZ = z - D/2;
+      const h = Math.max(1, Math.min(H-1, terrainHeight(worldX, worldZ) + SEA_LEVEL));
+      for(let y=0; y<H; y++){
+        const i = idx(x,y,z);
+        if(y > h) world[i] = BLOCK_TYPES.air;
+        else {
+          // top -> grass, above stone/dirt
+          if(y === h) world[i] = BLOCK_TYPES.grass;
+          else if(y > h-3) world[i] = BLOCK_TYPES.dirt;
+          else world[i] = BLOCK_TYPES.stone;
+        }
+      }
+      // random trees occasionally: place small wood columns with a leaf cap (we'll use wood blocks only for simplicity)
+      if(Math.random() < 0.05 && h+1 < H-2){
+        const tx = x, tz = z, ty = h+1;
+        // trunk 2-3 blocks high
+        const trunkH = 2 + Math.floor(Math.random()*2);
+        for(let t=0; t<trunkH; t++){
+          if(inBounds(tx, ty+t, tz)) world[idx(tx,ty+t,tz)] = BLOCK_TYPES.wood;
+        }
+      }
+    }
+  }
+
+  // ---------- instanced meshes per block type ----------
+  // Box geometry for a block
+  const cubeGeo = new THREE.BoxGeometry(BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+  const instanced = {}; // type -> {mesh, nextIndex, matrices[]}
+  Object.keys(BLOCK_TYPES).forEach(k => {
+    if(k === 'air') return;
+    const t = BLOCK_TYPES[k];
+    const mat = new THREE.MeshStandardMaterial({ color: TYPE_COLORS[t], flatShading: false });
+    const mesh = new THREE.InstancedMesh(cubeGeo, mat, MAX_INSTANCES);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    mesh.count = 0;
+    scene.add(mesh);
+    instanced[t] = { mesh: mesh, count: 0, matrices: [] };
+  });
+
+  // Populate instanced meshes with initial blocks
+  function rebuildInstances(){
+    // reset counts
+    Object.values(instanced).forEach(obj => { obj.count = 0; obj.matrices = []; });
+    let total = 0;
+    for(let z=0; z<D; z++){
+      for(let x=0; x<W; x++){
+        for(let y=0; y<H; y++){
+          const b = world[idx(x,y,z)];
+          if(b === BLOCK_TYPES.air) continue;
+          const obj = instanced[b];
+          if(!obj) continue;
+          const m = new THREE.Matrix4();
+          const px = (x - W/2) * BLOCK_SIZE;
+          const py = y * BLOCK_SIZE;
+          const pz = (z - D/2) * BLOCK_SIZE;
+          m.makeTranslation(px, py, pz);
+          obj.matrices.push(m);
+          obj.count++;
+          total++;
+        }
+      }
+    }
+    // apply matrices to InstancedMesh
+    Object.values(instanced).forEach(obj => {
+      const mesh = obj.mesh;
+      mesh.count = obj.count;
+      for(let i=0;i<obj.count;i++){
+        mesh.setMatrixAt(i, obj.matrices[i]);
+      }
+      mesh.instanceMatrix.needsUpdate = true;
+    });
+    document.getElementById('count').innerText = total;
+  }
+  rebuildInstances();
+
+  // ---------- Controls (PointerLockControls) ----------
+  const controls = new THREE.PointerLockControls(camera, document.body);
+  document.body.addEventListener('click', () => controls.lock());
+  controls.addEventListener('lock', () => document.getElementById('hint').style.display = 'none');
+  controls.addEventListener('unlock', () => document.getElementById('hint').style.display = '');
+
+  // Movement
+  const velocity = new THREE.Vector3();
+  const direction = new THREE.Vector3();
+  const move = { forward:false, backward:false, left:false, right:false };
+  let canJump = false;
+
+  document.addEventListener('keydown', e => {
+    if(e.code === 'KeyW') move.forward = true;
+    if(e.code === 'KeyS') move.backward = true;
+    if(e.code === 'KeyA') move.left = true;
+    if(e.code === 'KeyD') move.right = true;
+    if(e.code === 'Space' && canJump){ velocity.y = 8; canJump = false; }
+    if(e.code === 'Digit1') selectHotbar(0);
+    if(e.code === 'Digit2') selectHotbar(1);
+    if(e.code === 'Digit3') selectHotbar(2);
+    if(e.code === 'Digit4') selectHotbar(3);
+  });
+  document.addEventListener('keyup', e => {
+    if(e.code === 'KeyW') move.forward = false;
+    if(e.code === 'KeyS') move.backward = false;
+    if(e.code === 'KeyA') move.left = false;
+    if(e.code === 'KeyD') move.right = false;
+  });
+
+  // Mouse click: left remove, right place
+  let selectedType = BLOCK_TYPES.grass;
+  function selectHotbar(i){
+    const slots = document.querySelectorAll('.slot');
+    slots.forEach(s => s.classList.remove('sel'));
+    slots[i].classList.add('sel');
+    const tname = hotbarSlots[i];
+    selectedType = BLOCK_TYPES[tname];
+  }
+  // initialize hotbar click
+  document.querySelectorAll('.slot').forEach((el, i) => {
+    el.addEventListener('click', () => selectHotbar(i));
+  });
+
+  // raycaster for block targeting
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+  // helper: convert camera center ray
+  function getCenterRay(){
+    raycaster.setFromCamera(new THREE.Vector2(0,0), camera);
+    return raycaster;
+  }
+
+  // helper: world coords to voxel indices
+  function worldToVoxel(pos){
+    const vx = Math.floor(pos.x / BLOCK_SIZE + W/2);
+    const vy = Math.floor(pos.y / BLOCK_SIZE);
+    const vz = Math.floor(pos.z / BLOCK_SIZE + D/2);
+    return {x:vx, y:vy, z:vz};
+  }
+
+  // left click remove; right click place
+  window.addEventListener('mousedown', (e) => {
+    if(!controls.isLocked) return;
+    e.preventDefault();
+    const r = getCenterRay();
+    const intersects = [];
+    // iterate all instanced meshes and do raycast against them via bounding box approach:
+    // simpler: raycast against a broad track: create a plane list of possible targets via sampling along ray
+    // But three.js can raycast against InstancedMesh; do that:
+    for(const key in instanced){
+      const obj = instanced[key].mesh;
+      const ints = r.intersectObject(obj, true);
+      if(ints.length) intersects.push(...ints.map(i=>({i:i, type:key})));
+    }
+    if(intersects.length === 0) return;
+    // pick nearest
+    intersects.sort((a,b)=>a.i.distance - b.i.distance);
+    const hit = intersects[0].i;
+    const point = hit.point;
+    if(e.button === 0){
+      // left click: remove the block we hit
+      // compute voxel coordinate approximate: we need the exact instance index? Simpler: compute voxel by rounding point to nearest block center
+      const normal = hit.face.normal;
+      // block center = point - normal*0.5
+      const center = point.clone().sub(normal.clone().multiplyScalar(0.5*BLOCK_SIZE));
+      const v = worldToVoxel(center);
+      if(inBounds(v.x,v.y,v.z)){
+        world[idx(v.x,v.y,v.z)] = BLOCK_TYPES.air;
+        rebuildInstances();
+      }
+    } else if(e.button === 2){
+      // right click: place block adjacent to face hit
+      const normal = hit.face.normal;
+      const placePos = point.clone().add(normal.clone().multiplyScalar(0.5*BLOCK_SIZE));
+      const v = worldToVoxel(placePos);
+      if(inBounds(v.x,v.y,v.z)){
+        // don't place if there is a block already or we place where player stands
+        if(world[idx(v.x,v.y,v.z)] === BLOCK_TYPES.air){
+          // prevent placing inside player's body: compute player voxel and check distance
+          const playerVoxel = worldToVoxel(controls.getObject().position);
+          if(!(v.x === playerVoxel.x && v.y === playerVoxel.y && v.z === playerVoxel.z)){
+            world[idx(v.x,v.y,v.z)] = selectedType;
+            rebuildInstances();
+          }
+        }
+      }
+    }
+  });
+  // prevent context menu
+  window.addEventListener('contextmenu', (e)=> e.preventDefault());
+
+  // ---------- Player start over starting platform ----------
+  // find the highest ground near center and position player above it
+  let startX = Math.floor(W/2), startZ = Math.floor(D/2);
+  let startY = 0;
+  for(let y=H-1;y>=0;y--){
+    if(world[idx(startX,y,startZ)] !== BLOCK_TYPES.air){ startY = y+1; break; }
+  }
+  controls.getObject().position.set((startX - W/2)*BLOCK_SIZE, startY*BLOCK_SIZE + 0.5, (startZ - D/2)*BLOCK_SIZE);
+  scene.add(controls.getObject());
+
+  // ---------- physics-like player movement (simple) ----------
+  const playerPos = controls.getObject().position;
+  const gravity = -20;
+  const speedWalk = 6;
+  const speedSprint = 10;
+
+  let prevTime = performance.now();
+  function animate(){
+    requestAnimationFrame(animate);
+    const time = performance.now();
+    const dt = (time - prevTime) / 1000;
+    prevTime = time;
+
+    // movement
+    const forward = (move.forward?1:0) - (move.backward?1:0);
+    const side = (move.right?1:0) - (move.left?1:0);
+    // camera orientation yaw only
+    const quat = new THREE.Quaternion();
+    quat.setFromEuler(new THREE.Euler(0, camera.rotation.y, 0));
+    const dir = new THREE.Vecto

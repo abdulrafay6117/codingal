@@ -1,12 +1,18 @@
-header a
-{text-decoration: none;
-color: white;
-font-size: 18px;
+header a {
+    text-decoration: none;
+    color: rgb(255, 255, 255);
+    font-size: 18px;
 }
-header img{
+
+header img {
     margin-right: 10px;
 }
-    p {
-        text-align: center;
-        font:size:380px
-    }
+
+p {
+    text-align: center;
+    font-size: 38px;
+}
+
+.card-img-top {
+    height: 240px;
+}
